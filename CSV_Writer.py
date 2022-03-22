@@ -1,25 +1,42 @@
 import csv
+class WRITE_CSV:
+    def __init__(self):
+
+
+
+
+
+
+
+
+
+
 stockisThere = False
-stockDataSpreadsheet = open("test.csv", "w")
-csvWriter = csv.writer(stockDataSpreadsheet)
-array = {4,5,4,6,7,8}
-csvWriter.writerow(array)
+stockDataRead = open("test.csv", "r")
+csv_reader = list(csv.reader(stockDataRead))
+#
 
-
-
-
-csv_reader = csv.reader(stockDataSpreadsheet)
-next(csv_reader) #Skiping the header
 for line in csv_reader:
-    print(line[0])
-    if line[1] == ("apple") :
-        stockisThere = True;
+    print(line)
 
+print("Checking for changes")
 
-if stockisThere:
-    print("Stock is here")
+for line in csv_reader:
+    if(line[0] == "jesus"):
+       line[0] = "Varun"
+       print()
+       print()
+       print("CHANGE HAS BEEN MADE")
+       print(line)
+       print()
+       print()
 
-else:
-    print("Not here")
-
+for line in csv_reader:
+    print(line)
+stockDataRead.close()
+print(int(csv_reader[0][0]))
+stockDataWrite = open("test.csv", "w", newline='')
+csv_writer = csv.writer(stockDataWrite)
+csv_writer.writerow(csv_reader[0])
+csv_writer.writerow(csv_reader[1])
 

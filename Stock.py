@@ -6,23 +6,21 @@ class Stock:
     VALUE_SAFETY_MARGIN = 0.07
 
 
-
-    def __init__(self, theName, thePrice):
-        self.name = theName
-        self.price = thePrice
-        self.lastUpdate = datetime.date.today()
+    def __init__(self, theStockArray):
+        self.list = theStockArray
 
     def getName(self):
-        return (self.name)
+        return self.list[0]
+
+    def getTicker(self):
+        return self.list[1]
+
     def getPrice(self):
-        return self.price
+        return self.list[2]
 
-    def getLastUpdate(self):
-        return self.lastUpdate
+    def getLastUpdated(self):
+        return self.list[3]
 
+    def getFreeCashFlowToEquity_CURRENT_YEAR(self):
+        return self.list[4]
 
-appleStock = Stock("Apple", 145)
-print(appleStock.getLastUpdate())
-
-for x in range(5):
-    print(x+1)

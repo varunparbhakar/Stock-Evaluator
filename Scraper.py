@@ -41,16 +41,15 @@ class Scraper:
         self.driver.get("https://finance.yahoo.com/quote/{}/cash-flow?p={}".format(self.TICKER, self.TICKER))
         self.driver.implicitly_wait(5)
 
-        # "//*[@id="Col1-1-Financials-Proxy"]/section/div[3]/div[1]/div/div[2]/div[10]/div[1]/div[3]/span"
-        # "//*[@id="Col1-1-Financials-Proxy"]/section/div[3]/div[1]/div/div[2]/div[12]/div[1]/div[3]/span"
-        # "//*[@id="Col1-1-Financials-Proxy"]/section/div[3]/div[1]/div/div[2]/div[12]/div[1]/div[4]/span"
 
+        # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
 
 
 
 
         # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[3]/div[1]/div/div[2]")
+        webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
+
         print(webElement.text)
         freeCashFlowList = self.stringParser(webElement.text)
         print(freeCashFlowList)
@@ -81,11 +80,11 @@ class Scraper:
         while (counter < len(mylist)):
             print(mylist[counter])
             counter += 1
-
+        return mylist
 
 
 def main():
-    scraper = Scraper("AAPl")
+    scraper = Scraper("TSLA")
     scraper.freeCashFlow()
 
 main()

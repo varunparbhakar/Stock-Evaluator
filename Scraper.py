@@ -5,37 +5,16 @@ from selenium import webdriver
 
 
 class Scraper:
-    def __init__(self, theStock):
-        PATH = "C:\Program Files (x86)\chromedriver.exe"
-        self.TICKER = theStock
-        self.driver = webdriver.Chrome(PATH)
-        print("Scraper has been initialized")
 
-    def initializeStock(self, theStock):
-        # sds =              "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[3]/div[1]/div/div[2]/div[8]/div[1]/div[3]/span"
-        #
-        # cashFlow_Current = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[3]/div[1]/div/div[2]/div[11]/div[1]/div[3]/span"
-        #
-        # cashFlow_LastYear = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[3]/div[1]/div/div[2]/div[11]/div[1]/div[4]/span"
-        #
-        # cashFlow_2_YearsAgo = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[3]/div[1]/div/div[2]/div[11]/div[1]/div[5]/span"
-        #
-        # cashFlow_3_YearsAgo = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[3]/div[1]/div/div[2]/div[11]/div[1]/div[6]/span"
-
-        Scraper.freeCashFlow(self.TICKER, self.driver)
+    def __int__(self):
+        print("INTIALIZED")
 
 
-
-
-        # print("Current Year",number.text)
-        # number = driver.find_element_by_xpath(cashFlow_LastYear)
-        # print("2020 year", number.text)
-        # number = driver.find_element_by_xpath(cashFlow_2_YearsAgo)
-        # print("2019", number.text)
-        # number = driver.find_element_by_xpath(cashFlow_3_YearsAgo)
-        # print("2018", number.text)
-
-        self.driver.close()
+    # def __init__(self, theStock):
+    #     PATH = "C:\Program Files (x86)\chromedriver.exe"
+    #     self.TICKER = theStock
+    #     self.driver = webdriver.Chrome(PATH)
+    #     print("Scraper has been initialized")
 
 
     def getFreeCashFlow(self):
@@ -46,6 +25,7 @@ class Scraper:
 
         # Getting the main Class = "D(tbrg))
         webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
+        print(webElement.text)
 
         freeCashFlowList = self.stringParser(webElement.text, Attribute.FREE_CASH_FLOW_OFFSET)
         print("Free Cash flow of", self.TICKER, "is", freeCashFlowList)
@@ -62,16 +42,24 @@ class Scraper:
         webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
 
         totalDebt = self.stringParser(webElement.text, Attribute.TOTAL_DEBT_OFFSET)
-        print("Free Cash flow of", self.TICKER, "is", totalDebt)
+        print("Total Debt of ", self.TICKER, "is", totalDebt)
+
+    def getRevenueEstimates(self):
+        self.driver.get("https://finance.yahoo.com/quote/{}/analysis?p={}".format(self.TICKER, self.TICKER))
+        self.driver.implicitly_wait(5)
+
+        # Getting the main Class = "D(tbrg))
+        webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-0-AnalystLeafPage-Proxy\"]/section/table[2]")
+        print(webElement.text)
+
+        totalDebt = self.stringParser(webElement.text, Attribute.TOTAL_DEBT_OFFSET)
+        print("Total Debt of ", self.TICKER, "is", totalDebt)
 
     def getTotalRevenue(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/financials?p={}".format(self.TICKER, self.TICKER))
         self.driver.implicitly_wait(5)
 
-
         # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
-
-
 
 
         # Getting the main Class = "D(tbrg))
@@ -106,7 +94,7 @@ class Scraper:
         if (dataType == Attribute.FREE_CASH_FLOW_OFFSET):
             # The purpose of this offset is when we send the list to another method
             # we want to make sure that the other method doesn't receive the word inside the list
-            stringOffSet = Attribute.FREE_CASH_FLOW_OFFSET.value + 1
+            stringOffSet = 15
 
             currentCounter = 0
 
@@ -125,7 +113,7 @@ class Scraper:
         elif (dataType == Attribute.OPERATING_CASH_FLOW_OFFSET):
             # The purpose of this offset is when we send the list to another method
             # we want to make sure that the other method doesn't receive the word inside the list
-            stringOffSet = Attribute.OPERATING_CASH_FLOW_OFFSET.value + 1
+            stringOffSet = 20
             currentCounter = 0
             while (currentCounter < len(myStringList)):
                 character = "" + myStringList[currentCounter]
@@ -143,7 +131,7 @@ class Scraper:
         elif (dataType == Attribute.REVENUE_OFFSET):
             # The purpose of this offset is when we send the list to another method
             # we want to make sure that the other method doesn't receive the word inside the list
-            stringOffSet = Attribute.REVENUE_OFFSET.value + 1
+            stringOffSet = 14
             currentCounter = 0
             while (currentCounter < len(myStringList)):
                 character = "" + myStringList[currentCounter]
@@ -160,7 +148,7 @@ class Scraper:
         elif (dataType == Attribute.CAPITAL_EXPENDITURE_OFFSET):
             # The purpose of this offset is when we send the list to another method
             # we want to make sure that the other method doesn't receive the word inside the list
-            stringOffSet = Attribute.CAPITAL_EXPENDITURE_OFFSET.value + 1
+            stringOffSet = 20
             currentCounter = 0
             while (currentCounter < len(myStringList)):
                 character = "" + myStringList[currentCounter]
@@ -177,7 +165,7 @@ class Scraper:
         elif (dataType == Attribute.TOTAL_DEBT_OFFSET):
             # The purpose of this offset is when we send the list to another method
             # we want to make sure that the other method doesn't receive the word inside the list
-            stringOffSet = Attribute.TOTAL_DEBT_OFFSET.value + 1
+            stringOffSet = 11
             currentCounter = 0
             while (currentCounter < len(myStringList)):
                 character = "" + myStringList[currentCounter]
@@ -189,6 +177,28 @@ class Scraper:
 
                         break
                 currentCounter += 1
+
+            # Checking fot Revenue Estimates
+        elif (dataType == Attribute.R_E_AVG_ESTIMATE):
+            # The purpose of this offset is when we send the list to another method
+            # we want to make sure that the other method doesn't receive the word inside the list
+            stringOffSet = 14
+            currentCounter = 0
+            while (currentCounter < len(myStringList)):
+                character = "" + myStringList[currentCounter]
+                if (character.isupper()):
+
+                    if (self.revenueEstimatesStringChecker(myStringList[currentCounter:])):
+                        # Only sending the part of the list that has the data not the word itself
+                        solutionList = self.dataExtractor(myStringList[currentCounter + stringOffSet:])
+
+                        break
+                currentCounter += 1
+
+
+
+
+
 
 
 
@@ -210,9 +220,25 @@ class Scraper:
             TypeError: "The passed in list is empty"
 
         # Assuming the list starts at the word
-        myString = "".join(theList[:Attribute.FREE_CASH_FLOW_OFFSET.value])
+        myString = "".join(theList[:14])
 
         return (myString == "Free Cash Flow")
+
+    def revenueEstimatesStringChecker(self, theList):
+        """
+        This method verifies that the passed in string has the correct title.
+        The list passed into the method has to start at the word otherwise this method will declare it wrong.
+        The revenue estimates will be grabbed from the average estimates.
+        :param theList:
+        :return: Boolean
+        """
+        if (len(theList) == 0):
+            TypeError: "The passed in list is empty"
+
+        # Assuming the list starts at the word
+        myString = "".join(theList[:13])
+
+        return (myString == "Avg. Estimate")
 
     def totalDebtStringChecker(self, theList):
         """
@@ -225,7 +251,7 @@ class Scraper:
             TypeError: "The passed in list is empty"
 
         # Assuming the list starts at the word
-        myString = "".join(theList[:Attribute.TOTAL_DEBT_OFFSET.value])
+        myString = "".join(theList[:10])
 
         return (myString == "Total Debt")
 
@@ -243,7 +269,7 @@ class Scraper:
             TypeError: "The passed in list is empty"
 
         # Assuming the list starts at the word
-        myString = "".join(theList[:Attribute.OPERATING_CASH_FLOW_OFFSET.value])
+        myString = "".join(theList[:19])
 
         return (myString == "Operating Cash Flow")
 
@@ -260,7 +286,7 @@ class Scraper:
             TypeError: "The passed in list is empty"
 
         # Assuming the list starts at the word
-        myString = "".join(theList[:Attribute.CAPITAL_EXPENDITURE_OFFSET.value])
+        myString = "".join(theList[:19])
 
         return (myString == "Capital Expenditure")
 
@@ -276,7 +302,7 @@ class Scraper:
             TypeError: "The passed in list is empty"
 
         # Assuming the list starts at the word
-        myString = "".join(theList[:Attribute.REVENUE_OFFSET.value])
+        myString = "".join(theList[:13])
 
         return (myString == "Total Revenue")
 
@@ -324,7 +350,106 @@ class Scraper:
 
 def main():
 
-    stock = Scraper("AAPL")
-    stock.getTotalDebt()
+    stock = Scraper()
+
+    # stock = Scraper("AAPL")
+    # stock.getFreeCashFlow()
+
+    revenueEstimateString = """Revenue Estimate Current Qtr. (Mar 2022) Next Qtr. (Jun 2022) Current Year (2022) Next Year (2023)
+    No. of Analysts 26 25 41 39
+    Avg. Estimate 94.01B 86.57B 395.96B 418.34B
+    Low Estimate 90.04B 80.6B 384.52B 396.38B
+    High Estimate 100.44B 96.55B 408.3B 441.73B
+    Year Ago Sales N/A N/A 365.82B 395.96B
+    Sales Growth (year/est) N/A N/A 8.20% 5.70%"""
+    incomeStatementString = """Total Revenue
+    378,323,000 365,817,000 274,515,000 260,174,000 265,595,000
+    Cost of Revenue
+    215,572,000 212,981,000 169,559,000 161,782,000 163,756,000
+    Gross Profit
+    162,751,000 152,836,000 104,956,000 98,392,000 101,839,000
+    Operating Expense
+    45,848,000 43,887,000 38,668,000 34,462,000 30,941,000
+    Operating Income
+    116,903,000 108,949,000 66,288,000 63,930,000 70,898,000
+    Net Non Operating Interest Income Expense
+    45,000 198,000 890,000 1,385,000 2,446,000
+    Other Income Expense
+    -79,000 60,000 -87,000 422,000 -441,000
+    Pretax Income
+    116,869,000 109,207,000 67,091,000 65,737,000 72,903,000
+    Tax Provision
+    16,314,000 14,527,000 9,680,000 10,481,000 13,372,000
+    Net Income Common Stockholders
+    100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+    Diluted NI Available to Com Stockholders
+    100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+    Basic EPS
+    - 5.67 3.31 2.99 3.00
+    Diluted EPS
+    - 5.61 3.28 2.97 2.98
+    Basic Average Shares
+    - 16,701,272 17,352,119 18,471,336 19,821,508
+    Diluted Average Shares
+    - 16,864,919 17,528,214 18,595,652 20,000,436
+    Total Operating Income as Reported
+    116,903,000 108,949,000 66,288,000 63,930,000 70,898,000
+    Total Expenses
+    261,420,000 256,868,000 208,227,000 196,244,000 194,697,000
+    Net Income from Continuing & Discontinued Operation
+    100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+    Normalized Income
+    100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+    Interest Income
+    2,746,000 2,843,000 3,763,000 4,961,000 5,686,000
+    Interest Expense
+    2,701,000 2,645,000 2,873,000 3,576,000 3,240,000
+    Net Interest Income
+    45,000 198,000 890,000 1,385,000 2,446,000
+    EBIT
+    119,570,000 111,852,000 69,964,000 69,313,000 76,143,000
+    EBITDA
+    130,885,000 - - - -
+    Reconciled Cost of Revenue
+    215,572,000 212,981,000 169,559,000 161,782,000 163,756,000
+    Reconciled Depreciation
+    11,315,000 11,284,000 11,056,000 12,547,000 10,903,000
+    Net Income from Continuing Operation Net Minority Interest
+    100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+    Normalized EBITDA
+    130,885,000 123,136,000 81,020,000 81,860,000 87,046,000
+    Tax Rate for Calcs
+    0 0 0 0 0
+    Tax Effect of Unusual Items
+    0 0 0 0 0"""
+
+    cashFlowString = """Operating Cash Flow
+112,241,000 104,038,000 80,674,000 69,391,000 77,434,000
+Investing Cash Flow
+-22,067,000 -14,545,000 -4,289,000 45,896,000 16,066,000
+Financing Cash Flow
+-89,263,000 -93,353,000 -86,820,000 -90,976,000 -87,876,000
+End Cash Position
+38,630,000 35,929,000 39,789,000 50,224,000 25,913,000
+Income Tax Paid Supplemental Data
+28,833,000 25,385,000 9,501,000 15,263,000 10,417,000
+Interest Paid Supplemental Data
+2,599,000 2,687,000 3,002,000 3,423,000 3,022,000
+Capital Expenditure
+-10,388,000 -11,085,000 -7,309,000 -10,495,000 -13,313,000
+Issuance of Capital Stock
+- 1,105,000 880,000 781,000 669,000
+Issuance of Debt
+- 20,393,000 16,091,000 6,963,000 6,969,000
+Repayment of Debt
+-7,750,000 -8,750,000 -12,629,000 -8,805,000 -6,500,000
+Repurchase of Capital Stock
+-81,674,000 -85,971,000 -72,358,000 -66,897,000 -72,738,000
+Free Cash Flow
+101,853,000 92,953,000 73,365,000 58,896,000 64,121,000"""
+
+
+
+    print(stock.stringParser(, Attribute.REVENUE_OFFSET))
 
 main()

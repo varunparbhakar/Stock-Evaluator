@@ -38,24 +38,33 @@ class Scraper:
         self.driver.close()
 
 
-    def freeCashFlow(self):
+    def getFreeCashFlow(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/cash-flow?p={}".format(self.TICKER, self.TICKER))
         self.driver.implicitly_wait(5)
 
-
         # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
-
-
-
 
         # Getting the main Class = "D(tbrg))
         webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
 
-
-        freeCashFlowList = self.stringParser(webElement.text, Attribute.FREE_CASH_FLOW)
+        freeCashFlowList = self.stringParser(webElement.text, Attribute.FREE_CASH_FLOW_OFFSET)
         print("Free Cash flow of", self.TICKER, "is", freeCashFlowList)
 
-    def revenue(self):
+
+
+    def getTotalDebt(self):
+        self.driver.get("https://finance.yahoo.com/quote/{}/balance-sheet?p={}".format(self.TICKER, self.TICKER))
+        self.driver.implicitly_wait(5)
+
+        # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
+
+        # Getting the main Class = "D(tbrg))
+        webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
+
+        totalDebt = self.stringParser(webElement.text, Attribute.TOTAL_DEBT_OFFSET)
+        print("Free Cash flow of", self.TICKER, "is", totalDebt)
+
+    def getTotalRevenue(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/financials?p={}".format(self.TICKER, self.TICKER))
         self.driver.implicitly_wait(5)
 
@@ -69,8 +78,9 @@ class Scraper:
         webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
         print(webElement.text)
 
-        freeCashFlowList = self.stringParser(webElement.text, Attribute.FREE_CASH_FLOW)
-        print("Revenue of", self.TICKER, "is", freeCashFlowList)
+        revenueList = self.stringParser(webElement.text, Attribute.REVENUE_OFFSET)
+        print("Revenue of", self.TICKER, "is", revenueList)
+
 
 
 
@@ -93,10 +103,10 @@ class Scraper:
         solutionList = None  # Storing the solution list
 
         # Checking fot Free Cash Flow
-        if (dataType == Attribute.FREE_CASH_FLOW):
+        if (dataType == Attribute.FREE_CASH_FLOW_OFFSET):
             # The purpose of this offset is when we send the list to another method
             # we want to make sure that the other method doesn't receive the word inside the list
-            stringOffSet = 15
+            stringOffSet = Attribute.FREE_CASH_FLOW_OFFSET.value + 1
 
             currentCounter = 0
 
@@ -112,10 +122,10 @@ class Scraper:
 
 
         # Checking fot Operating Cash Flow
-        elif (dataType == Attribute.OPERATING_CASH_FLOW):
+        elif (dataType == Attribute.OPERATING_CASH_FLOW_OFFSET):
             # The purpose of this offset is when we send the list to another method
             # we want to make sure that the other method doesn't receive the word inside the list
-            stringOffSet = 20
+            stringOffSet = Attribute.OPERATING_CASH_FLOW_OFFSET.value + 1
             currentCounter = 0
             while (currentCounter < len(myStringList)):
                 character = "" + myStringList[currentCounter]
@@ -129,11 +139,28 @@ class Scraper:
                 currentCounter += 1
 
 
-        # Checking fot Capital Expenditure
-        elif (dataType == Attribute.CAPITAL_EXPENDITURE):
+        # Checking fot Total Revenue
+        elif (dataType == Attribute.REVENUE_OFFSET):
             # The purpose of this offset is when we send the list to another method
             # we want to make sure that the other method doesn't receive the word inside the list
-            stringOffSet = 24
+            stringOffSet = Attribute.REVENUE_OFFSET.value + 1
+            currentCounter = 0
+            while (currentCounter < len(myStringList)):
+                character = "" + myStringList[currentCounter]
+                if (character.isupper()):
+
+                    if (self.revenueStringChecker(myStringList[currentCounter:])):
+                        # Only sending the part of the list that has the data not the word itself
+                        solutionList = self.dataExtractor(myStringList[currentCounter + stringOffSet:])
+
+                        break
+                currentCounter += 1
+
+        # Checking fot Capital Expenditure
+        elif (dataType == Attribute.CAPITAL_EXPENDITURE_OFFSET):
+            # The purpose of this offset is when we send the list to another method
+            # we want to make sure that the other method doesn't receive the word inside the list
+            stringOffSet = Attribute.CAPITAL_EXPENDITURE_OFFSET.value + 1
             currentCounter = 0
             while (currentCounter < len(myStringList)):
                 character = "" + myStringList[currentCounter]
@@ -145,6 +172,26 @@ class Scraper:
 
                         break
                 currentCounter += 1
+
+            # Checking fot Total Debt
+        elif (dataType == Attribute.TOTAL_DEBT_OFFSET):
+            # The purpose of this offset is when we send the list to another method
+            # we want to make sure that the other method doesn't receive the word inside the list
+            stringOffSet = Attribute.TOTAL_DEBT_OFFSET.value + 1
+            currentCounter = 0
+            while (currentCounter < len(myStringList)):
+                character = "" + myStringList[currentCounter]
+                if (character.isupper()):
+
+                    if (self.totalDebtStringChecker(myStringList[currentCounter:])):
+                        # Only sending the part of the list that has the data not the word itself
+                        solutionList = self.dataExtractor(myStringList[currentCounter + stringOffSet:])
+
+                        break
+                currentCounter += 1
+
+
+
 
         # Checking if the list is empty
         if (len(solutionList) == None):
@@ -163,9 +210,26 @@ class Scraper:
             TypeError: "The passed in list is empty"
 
         # Assuming the list starts at the word
-        myString = "".join(theList[:14])
+        myString = "".join(theList[:Attribute.FREE_CASH_FLOW_OFFSET.value])
 
         return (myString == "Free Cash Flow")
+
+    def totalDebtStringChecker(self, theList):
+        """
+        This method verifies that the passed in string has the correct title.
+        The list passed into the method has to start at the word otherwise this method will declare it wrong.
+        :param theList:
+        :return: Boolean
+        """
+        if (len(theList) == 0):
+            TypeError: "The passed in list is empty"
+
+        # Assuming the list starts at the word
+        myString = "".join(theList[:Attribute.TOTAL_DEBT_OFFSET.value])
+
+        return (myString == "Total Debt")
+
+
 
     def operatingCashFlowStringChecker(self, theList):
         """
@@ -179,9 +243,10 @@ class Scraper:
             TypeError: "The passed in list is empty"
 
         # Assuming the list starts at the word
-        myString = "".join(theList[:19])
+        myString = "".join(theList[:Attribute.OPERATING_CASH_FLOW_OFFSET.value])
 
         return (myString == "Operating Cash Flow")
+
 
     def capitalExpenditureStringChecker(self, theList):
         """
@@ -195,9 +260,27 @@ class Scraper:
             TypeError: "The passed in list is empty"
 
         # Assuming the list starts at the word
-        myString = "".join(theList[:19])
+        myString = "".join(theList[:Attribute.CAPITAL_EXPENDITURE_OFFSET.value])
 
         return (myString == "Capital Expenditure")
+
+
+    def revenueStringChecker(self, theList):
+        """
+        This method verifies that the passed in string has the correct title.
+        The list passed into the method has to start at the word otherwise this method will declare it wrong.
+        :param theList:
+        :return: Boolean
+        """
+        if (len(theList) == 0):
+            TypeError: "The passed in list is empty"
+
+        # Assuming the list starts at the word
+        myString = "".join(theList[:Attribute.REVENUE_OFFSET.value])
+
+        return (myString == "Total Revenue")
+
+
 
     def dataExtractor(self, theList):
         """
@@ -240,7 +323,8 @@ class Scraper:
 
 
 def main():
-    scraper = Scraper("AAPL")
-    scraper.revenue()
+
+    stock = Scraper("AAPL")
+    stock.getTotalDebt()
 
 main()

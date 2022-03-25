@@ -1,52 +1,56 @@
 import json
+
+from selenium.webdriver.common.by import By
+
 from Attributes import Attribute
 
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class Scraper:
 
-    def __int__(self):
-        print("INTIALIZED")
+    # def __int__(self):
+    #     print("INTIALIZED")
 
-
-    # def __init__(self, theStock):
-    #     PATH = "C:\Program Files (x86)\chromedriver.exe"
-    #     self.TICKER = theStock
-    #     self.driver = webdriver.Chrome(PATH)
-    #     print("Scraper has been initialized")
-
+    def __init__(self, theStock):
+        PATH = "C:\Program Files (x86)\chromedriver.exe"
+        self.TICKER = theStock
+        self.options = webdriver.ChromeOptions()
+        self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        self.options.add_experimental_option("useAutomationExtension", False)
+        self.service = ChromeService(executable_path="C:\Program Files (x86)\chromedriver.exe")
+        self.driver = webdriver.Chrome(service=self.service, options=self.options)
+        print("Scraper has been initialized")
 
     def getFreeCashFlow(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/cash-flow?p={}".format(self.TICKER, self.TICKER))
-        self.driver.implicitly_wait(5)
-
-        # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
+        myX_Path = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
+        WebDriverWait(self.driver, timeout=3).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
 
         # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
-        print(webElement.text)
+        webElement = self.driver.find_element(By.XPATH, myX_Path)
 
         freeCashFlowList = self.stringParser(webElement.text, Attribute.FREE_CASH_FLOW_OFFSET)
         print("Free Cash flow of", self.TICKER, "is", freeCashFlowList)
 
-
-
     def getTotalDebt(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/balance-sheet?p={}".format(self.TICKER, self.TICKER))
-        self.driver.implicitly_wait(5)
+        self.driver.wa
 
         # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
 
         # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
+        webElement = self.driver.find_element(By.XPATH,
+                                              "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
 
         totalDebt = self.stringParser(webElement.text, Attribute.TOTAL_DEBT_OFFSET)
         print("Total Debt of ", self.TICKER, "is", totalDebt)
 
     def getRevenueEstimates(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/analysis?p={}".format(self.TICKER, self.TICKER))
-        self.driver.implicitly_wait(5)
 
         # Getting the main Class = "D(tbrg))
         webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-0-AnalystLeafPage-Proxy\"]/section/table[2]")
@@ -61,16 +65,13 @@ class Scraper:
 
         # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
 
-
         # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
+        webElement = self.driver.find_element_by_xpath(
+            "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
         print(webElement.text)
 
         revenueList = self.stringParser(webElement.text, Attribute.REVENUE_OFFSET)
         print("Revenue of", self.TICKER, "is", revenueList)
-
-
-
 
     def stringParser(self, theString, dataType):
         """
@@ -195,14 +196,6 @@ class Scraper:
                         break
                 currentCounter += 1
 
-
-
-
-
-
-
-
-
         # Checking if the list is empty
         if (len(solutionList) == None):
             TypeError: "The solution list is empty or has not been filled in correctly"
@@ -255,8 +248,6 @@ class Scraper:
 
         return (myString == "Total Debt")
 
-
-
     def operatingCashFlowStringChecker(self, theList):
         """
             This method verifies that the passed in string has the correct title.
@@ -272,7 +263,6 @@ class Scraper:
         myString = "".join(theList[:19])
 
         return (myString == "Operating Cash Flow")
-
 
     def capitalExpenditureStringChecker(self, theList):
         """
@@ -290,7 +280,6 @@ class Scraper:
 
         return (myString == "Capital Expenditure")
 
-
     def revenueStringChecker(self, theList):
         """
         This method verifies that the passed in string has the correct title.
@@ -305,8 +294,6 @@ class Scraper:
         myString = "".join(theList[:13])
 
         return (myString == "Total Revenue")
-
-
 
     def dataExtractor(self, theList):
         """
@@ -349,11 +336,10 @@ class Scraper:
 
 
 def main():
+    # stock = Scraper()
 
-    stock = Scraper()
-
-    # stock = Scraper("AAPL")
-    # stock.getFreeCashFlow()
+    stock = Scraper("AAPL")
+    stock.getFreeCashFlow()
 
     revenueEstimateString = """Revenue Estimate Current Qtr. (Mar 2022) Next Qtr. (Jun 2022) Current Year (2022) Next Year (2023)
     No. of Analysts 26 25 41 39
@@ -448,8 +434,7 @@ Repurchase of Capital Stock
 Free Cash Flow
 101,853,000 92,953,000 73,365,000 58,896,000 64,121,000"""
 
+    print(stock.stringParser(revenueEstimateString, Attribute.REVENUE_OFFSET))
 
-
-    print(stock.stringParser(, Attribute.REVENUE_OFFSET))
 
 main()

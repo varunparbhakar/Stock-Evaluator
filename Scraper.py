@@ -23,12 +23,13 @@ class Scraper:
         self.options.add_experimental_option("useAutomationExtension", False)
         self.service = ChromeService(executable_path="C:\Program Files (x86)\chromedriver.exe")
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
+        self.wait_Timer = 1
         print("Scraper has been initialized")
 
     def getFreeCashFlow(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/cash-flow?p={}".format(self.TICKER, self.TICKER))
         myX_Path = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
-        WebDriverWait(self.driver, timeout=3).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
+        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
 
         # Getting the main Class = "D(tbrg))
         webElement = self.driver.find_element(By.XPATH, myX_Path)
@@ -38,13 +39,13 @@ class Scraper:
 
     def getTotalDebt(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/balance-sheet?p={}".format(self.TICKER, self.TICKER))
-        self.driver.wa
+        myX_Path = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
+        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
 
         # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
 
         # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element(By.XPATH,
-                                              "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
+        webElement = self.driver.find_element(By.XPATH,myX_Path)
 
         totalDebt = self.stringParser(webElement.text, Attribute.TOTAL_DEBT_OFFSET)
         print("Total Debt of ", self.TICKER, "is", totalDebt)
@@ -52,22 +53,24 @@ class Scraper:
     def getRevenueEstimates(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/analysis?p={}".format(self.TICKER, self.TICKER))
 
+        myX_Path = "//*[@id=\"Col1-0-AnalystLeafPage-Proxy\"]/section/table[2]"
+        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
+
         # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element_by_xpath("//*[@id=\"Col1-0-AnalystLeafPage-Proxy\"]/section/table[2]")
-        print(webElement.text)
+        webElement = self.driver.find_element(By.XPATH, myX_Path)
 
         totalDebt = self.stringParser(webElement.text, Attribute.TOTAL_DEBT_OFFSET)
         print("Total Debt of ", self.TICKER, "is", totalDebt)
 
     def getTotalRevenue(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/financials?p={}".format(self.TICKER, self.TICKER))
-        self.driver.implicitly_wait(5)
 
-        # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
+        myX_Path = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
+        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
 
         # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element_by_xpath(
-            "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]")
+        webElement = self.driver.find_element(By.XPATH, myX_Path)
+
         print(webElement.text)
 
         revenueList = self.stringParser(webElement.text, Attribute.REVENUE_OFFSET)
@@ -339,7 +342,69 @@ def main():
     # stock = Scraper()
 
     stock = Scraper("AAPL")
-    stock.getFreeCashFlow()
+    stock.getTotalRevenue()
+
+
+    income_Statement = """Total Revenue
+378,323,000 365,817,000 274,515,000 260,174,000 265,595,000
+Cost of Revenue
+215,572,000 212,981,000 169,559,000 161,782,000 163,756,000
+Gross Profit
+162,751,000 152,836,000 104,956,000 98,392,000 101,839,000
+Operating Expense
+45,848,000 43,887,000 38,668,000 34,462,000 30,941,000
+Operating Income
+116,903,000 108,949,000 66,288,000 63,930,000 70,898,000
+Net Non Operating Interest Income Expense
+45,000 198,000 890,000 1,385,000 2,446,000
+Other Income Expense
+-79,000 60,000 -87,000 422,000 -441,000
+Pretax Income
+116,869,000 109,207,000 67,091,000 65,737,000 72,903,000
+Tax Provision
+16,314,000 14,527,000 9,680,000 10,481,000 13,372,000
+Net Income Common Stockholders
+100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+Diluted NI Available to Com Stockholders
+100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+Basic EPS
+- 5.67 3.31 2.99 3.00
+Diluted EPS
+- 5.61 3.28 2.97 2.98
+Basic Average Shares
+- 16,701,272 17,352,119 18,471,336 19,821,508
+Diluted Average Shares
+- 16,864,919 17,528,214 18,595,652 20,000,436
+Total Operating Income as Reported
+116,903,000 108,949,000 66,288,000 63,930,000 70,898,000
+Total Expenses
+261,420,000 256,868,000 208,227,000 196,244,000 194,697,000
+Net Income from Continuing & Discontinued Operation
+100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+Normalized Income
+100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+Interest Income
+2,746,000 2,843,000 3,763,000 4,961,000 5,686,000
+Interest Expense
+2,701,000 2,645,000 2,873,000 3,576,000 3,240,000
+Net Interest Income
+45,000 198,000 890,000 1,385,000 2,446,000
+EBIT
+119,570,000 111,852,000 69,964,000 69,313,000 76,143,000
+EBITDA
+130,885,000 - - - -
+Reconciled Cost of Revenue
+215,572,000 212,981,000 169,559,000 161,782,000 163,756,000
+Reconciled Depreciation
+11,315,000 11,284,000 11,056,000 12,547,000 10,903,000
+Net Income from Continuing Operation Net Minority Interest
+100,555,000 94,680,000 57,411,000 55,256,000 59,531,000
+Normalized EBITDA
+130,885,000 123,136,000 81,020,000 81,860,000 87,046,000
+Tax Rate for Calcs
+0 0 0 0 0
+Tax Effect of Unusual Items
+0 0 0 0 0"""
 
     revenueEstimateString = """Revenue Estimate Current Qtr. (Mar 2022) Next Qtr. (Jun 2022) Current Year (2022) Next Year (2023)
     No. of Analysts 26 25 41 39

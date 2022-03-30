@@ -21,7 +21,7 @@ class Scraper:
         self.options = webdriver.ChromeOptions()
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.options.add_experimental_option("useAutomationExtension", False)
-        self.service = ChromeService(executable_path="C:\Program Files (x86)\chromedriver.exe")
+        self.service = ChromeService(executable_path=PATH)
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
         self.wait_Timer = 1
         print("Scraper has been initialized")
@@ -499,7 +499,7 @@ Repurchase of Capital Stock
 Free Cash Flow
 101,853,000 92,953,000 73,365,000 58,896,000 64,121,000"""
 
-    print(stock.stringParser(revenueEstimateString, Attribute.REVENUE_OFFSET))
+    print(stock.stringParser(incomeStatementString, Attribute.REVENUE_OFFSET))
 
 
 main()

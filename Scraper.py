@@ -71,7 +71,7 @@ class Scraper:
         # Getting the main Class = "D(tbrg))
         webElement = self.driver.find_element(By.XPATH, myX_Path)
 
-        print(webElement.text)
+        #print(webElement.text)
 
         revenueList = self.stringParser(webElement.text, Attribute.REVENUE_OFFSET)
         print("Revenue of", self.TICKER, "is", revenueList)
@@ -341,9 +341,13 @@ class Scraper:
 def main():
     # stock = Scraper()
 
-    stock = Scraper("AAPL")
+    stock = Scraper("AMZN")
+    stock.getFreeCashFlow()
+    print()
     stock.getTotalRevenue()
-
+    print()
+    stock.getTotalDebt()
+    print()
 
     income_Statement = """Total Revenue
 378,323,000 365,817,000 274,515,000 260,174,000 265,595,000
@@ -499,7 +503,7 @@ Repurchase of Capital Stock
 Free Cash Flow
 101,853,000 92,953,000 73,365,000 58,896,000 64,121,000"""
 
-    print(stock.stringParser(incomeStatementString, Attribute.REVENUE_OFFSET))
+    #print(stock.stringParser(incomeStatementString, Attribute.REVENUE_OFFSET))
 
 
 main()

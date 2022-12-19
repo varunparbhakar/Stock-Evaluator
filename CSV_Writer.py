@@ -1,16 +1,6 @@
 import csv
 class WRITE_CSV:
     def __init__(self):
-
-
-
-
-
-
-
-
-
-
 stockisThere = False
 stockDataRead = open("test.csv", "r")
 csv_reader = list(csv.reader(stockDataRead))

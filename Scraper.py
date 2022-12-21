@@ -16,28 +16,40 @@ class Scraper:
     #     print("INTIALIZED")
 
     def __init__(self, theStock):
-        PATH = "C:\Program Files (x86)\chromedriver.exe"
+        PATH = "C:\Program Files\chromedriver.exe"
         self.TICKER = theStock
         self.options = webdriver.ChromeOptions()
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.options.add_experimental_option("useAutomationExtension", False)
         self.service = ChromeService(executable_path=PATH)
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
-        self.wait_Timer = 1
+        self.wait_Timer = 3
         print("Scraper has been initialized")
+        # self.Income_Statement = self.getIncome_Statement()
+        # self.BalanceSheet_Statement = self.getBalanceSheet_Statement()
+        # self.CashFlow_Statement = self.getCashFlow_Statement()
+        self.Analysis_Statement = self.getAnalysis_Statement()
+        self.driver.close()
 
-    def getFreeCashFlow(self):
+    # Getting the web elements from the webpage
+    def getCashFlow_Statement(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/cash-flow?p={}".format(self.TICKER, self.TICKER))
         myX_Path = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
         WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
-
         # Getting the main Class = "D(tbrg))
         webElement = self.driver.find_element(By.XPATH, myX_Path)
+        return webElement.text
 
-        freeCashFlowList = self.stringParser(webElement.text, Attribute.FREE_CASH_FLOW_OFFSET)
-        print("Free Cash flow of", self.TICKER, "is", freeCashFlowList)
+    def getIncome_Statement(self):
+        self.driver.get("https://finance.yahoo.com/quote/{}/financials?p={}".format(self.TICKER, self.TICKER))
 
-    def getTotalDebt(self):
+        myX_Path = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
+        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
+
+        webElement = self.driver.find_element(By.XPATH, myX_Path)
+        return webElement.text
+
+    def getBalanceSheet_Statement(self):
         self.driver.get("https://finance.yahoo.com/quote/{}/balance-sheet?p={}".format(self.TICKER, self.TICKER))
         myX_Path = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
         WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
@@ -45,36 +57,46 @@ class Scraper:
         # Working Free cash flow Address 10:56 PM 22 March "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
 
         # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element(By.XPATH,myX_Path)
+        webElement = self.driver.find_element(By.XPATH, myX_Path)
+        return webElement.text
+    def getAnalysis_Statement(self):
 
-        totalDebt = self.stringParser(webElement.text, Attribute.TOTAL_DEBT_OFFSET)
+        myX_Path = "/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/section"
+
+        self.driver.get("https://finance.yahoo.com/quote/{}/analysis?p={}".format(self.TICKER, self.TICKER))
+        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
+
+        webElement = self.driver.find_element(By.XPATH, myX_Path)
+        #                                                 NOT PRININTING EVERYTHING IN THE ANALYSIS FIX WITH CLASS NAME
+        analysisSection = webElement.find_elements(By.CLASS_NAME, "W(100%) M(0) BdB Bdc($seperatorColor) Mb(25px)")
+        analysisText = ""
+        for el in analysisSection:
+            analysisText = analysisText + el.text + "\n"
+
+        return analysisText
+
+    ## Stock Attributes
+    def getFreeCashFlow(self):
+        freeCashFlowList = self.stringParser(self.CashFlow_Statement, Attribute.FREE_CASH_FLOW_OFFSET)
+        print("Free Cash flow of", self.TICKER, "is", freeCashFlowList)
+        return freeCashFlowList
+
+    def getTotalDebt(self):
+
+        totalDebt = self.stringParser(self.BalanceSheet_Statement, Attribute.TOTAL_DEBT_OFFSET)
         print("Total Debt of ", self.TICKER, "is", totalDebt)
+        return totalDebt
 
     def getRevenueEstimates(self):
-        self.driver.get("https://finance.yahoo.com/quote/{}/analysis?p={}".format(self.TICKER, self.TICKER))
-
-        myX_Path = "//*[@id=\"Col1-0-AnalystLeafPage-Proxy\"]/section/table[2]"
-        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
-
-        # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element(By.XPATH, myX_Path)
-
-        totalDebt = self.stringParser(webElement.text, Attribute.TOTAL_DEBT_OFFSET)
-        print("Total Debt of ", self.TICKER, "is", totalDebt)
+        revenueEstimate = self.stringParser(self.Analysis_Statement, Attribute.TOTAL_DEBT_OFFSET)
+        print("Total Revenue Estimate of ", self.TICKER, "is", revenueEstimate)
+        return revenueEstimate
 
     def getTotalRevenue(self):
-        self.driver.get("https://finance.yahoo.com/quote/{}/financials?p={}".format(self.TICKER, self.TICKER))
 
-        myX_Path = "//*[@id=\"Col1-1-Financials-Proxy\"]/section/div[4]/div[1]/div[1]/div[2]"
-        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
-
-        # Getting the main Class = "D(tbrg))
-        webElement = self.driver.find_element(By.XPATH, myX_Path)
-
-        #print(webElement.text)
-
-        revenueList = self.stringParser(webElement.text, Attribute.REVENUE_OFFSET)
+        revenueList = self.stringParser(self.Income_Statement, Attribute.REVENUE_OFFSET)
         print("Revenue of", self.TICKER, "is", revenueList)
+        return revenueList
 
     def stringParser(self, theString, dataType):
         """
@@ -342,12 +364,18 @@ def main():
     # stock = Scraper()
 
     stock = Scraper("AMZN")
-    stock.getFreeCashFlow()
-    print()
-    stock.getTotalRevenue()
-    print()
-    stock.getTotalDebt()
-    print()
+    # print("Income Statement == " + stock.Income_Statement)
+    # print("-----------------------------")
+    # print("Balance Statement == " + stock.BalanceSheet_Statement)
+    # print("-----------------------------")
+    # print("Cash Flow Statement == " + stock.CashFlow_Statement)
+    # print("-----------------------------")
+    print("Analysis Statement == " + stock.Analysis_Statement)
+    print("-----------------------------")
+
+    # print(stock.getFreeCashFlow())
+    # print("Getting Cash flow again")
+    # print(stock.getFreeCashFlow())
 
     income_Statement = """Total Revenue
 378,323,000 365,817,000 274,515,000 260,174,000 265,595,000

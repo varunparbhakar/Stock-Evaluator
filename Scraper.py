@@ -61,19 +61,14 @@ class Scraper:
         return webElement.text
     def getAnalysis_Statement(self):
 
-        myX_Path = "/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/section"
+        myX_Path = "Col1-0-AnalystLeafPage-Proxy"
 
         self.driver.get("https://finance.yahoo.com/quote/{}/analysis?p={}".format(self.TICKER, self.TICKER))
-        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
+        # WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
 
-        webElement = self.driver.find_element(By.XPATH, myX_Path)
-        #                                                 NOT PRININTING EVERYTHING IN THE ANALYSIS FIX WITH CLASS NAME
-        analysisSection = webElement.find_elements(By.CLASS_NAME, "W(100%) M(0) BdB Bdc($seperatorColor) Mb(25px)")
-        analysisText = ""
-        for el in analysisSection:
-            analysisText = analysisText + el.text + "\n"
+        webElement = self.driver.find_element(By.ID, myX_Path)
 
-        return analysisText
+        return webElement.text
 
     ## Stock Attributes
     def getFreeCashFlow(self):
@@ -363,7 +358,7 @@ class Scraper:
 def main():
     # stock = Scraper()
 
-    stock = Scraper("AMZN")
+    stock = Scraper("PSA")
     # print("Income Statement == " + stock.Income_Statement)
     # print("-----------------------------")
     # print("Balance Statement == " + stock.BalanceSheet_Statement)

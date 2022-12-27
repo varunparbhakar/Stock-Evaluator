@@ -29,8 +29,24 @@ class Scraper:
         # self.Income_Statement = self.getIncome_Statement()
         # self.BalanceSheet_Statement = self.getBalanceSheet_Statement()
         # self.CashFlow_Statement = self.getCashFlow_Statement()
-        self.Analysis_Statement = self.getAnalysis_Statement()
+        # self.Analysis_Statement = self.getAnalysis_Statement()
+
+        self.Income_Map = self.mapMaker(self.getIncome_Statement())
+        self.BalanceSheet_Map = self.mapMaker(self.getBalanceSheet_Statement())
+        self.CashFlow_Map = self.mapMaker(self.getCashFlow_Statement())
+        self.Analysis_Map = self.mapMaker(self.getAnalysis_Statement())
+
         self.driver.close()
+    def mapMaker(self, stringText):
+        tempList = stringText.split("\n")
+        currentMap = {}  # String : Array
+
+        i = 1
+        while i < len(tempList):
+            currentMap[tempList[i - 1]] = tempList[i].replace(",", "").split(" ")
+            i = i + 2
+
+        return currentMap
 
     # Getting the web elements from the webpage
     def getCashFlow_Statement(self):
@@ -368,20 +384,132 @@ class Scraper:
 
         return mylist
 
+    def printMaps(self):
+        print("Printing Income Map")
+        for x in self.Income_Map:
+            print(x)
+        print("-----------")
+
+        print("Printing Balance Sheet Map")
+        for x in self.BalanceSheet_Map:
+            print(x)
+        print("-----------")
+
+
+        print("Printing Cash Flow Map")
+        for x in self.CashFlow_Map:
+            print(x)
+        print("-----------")
+
+
+        print("Printing Analysis Map")
+        for x in self.Analysis_Map:
+            print(x)
+
 
 def main():
     # stock = Scraper()
 
     stock = Scraper("AMZN")
-    # print("Income Statement == " + stock.Income_Statement)
-    # print("-----------------------------")
-    # print("Balance Statement == " + stock.BalanceSheet_Statement)
-    # print("-----------------------------")
-    # print("Cash Flow Statement == " + stock.CashFlow_Statement)
-    # print("-----------------------------")
-    print("Analysis Statement == " + stock.Analysis_Statement)
-    print("-----------------------------")
 
+    incomeST = """Total Revenue
+502,191,000 469,822,000 386,064,000 280,522,000 232,887,000
+Cost of Revenue
+437,379,000 403,507,000 334,564,000 241,699,000 202,020,000
+Gross Profit
+64,812,000 66,315,000 51,500,000 38,823,000 30,867,000
+Operating Expense
+51,841,000 41,436,000 28,601,000 24,282,000 18,446,000
+Operating Income
+12,971,000 24,879,000 22,899,000 14,541,000 12,421,000
+Net Non Operating Interest Income Expense
+-1,493,000 -1,361,000 -1,092,000 -768,000 -977,000
+Other Income Expense
+-1,518,000 14,633,000 2,371,000 203,000 -183,000
+Pretax Income
+9,960,000 38,151,000 24,178,000 13,976,000 11,261,000
+Tax Provision
+-1,378,000 4,791,000 2,863,000 2,374,000 1,197,000
+Earnings from Equity Interest Net of Tax
+-15,000 4,000 16,000 -14,000 9,000
+Net Income Common Stockholders
+11,323,000 33,364,000 21,331,000 11,588,000 10,073,000
+Diluted NI Available to Com Stockholders
+11,323,000 33,364,000 21,331,000 11,588,000 10,073,000
+Basic EPS
+- 3.30 2.13 1.17 1.03
+Diluted EPS
+- 3.24 2.09 1.15 1.01
+Basic Average Shares
+- 10,120,000 10,000,000 9,880,000 9,740,000"""
+    balanceST = """Total Assets
+420,549,000 321,195,000 225,248,000 162,648,000
+Total Liabilities Net Minority Interest
+282,304,000 227,791,000 163,188,000 119,099,000
+Total Equity Gross Minority Interest
+138,245,000 93,404,000 62,060,000 43,549,000
+Total Capitalization
+186,989,000 125,220,000 85,474,000 67,044,000
+Common Stock Equity
+138,245,000 93,404,000 62,060,000 43,549,000
+Capital Lease Obligations
+67,651,000 52,573,000 39,791,000 16,292,000
+Net Tangible Assets
+117,767,000 73,406,000 43,257,000 24,891,000
+Working Capital
+19,314,000 6,348,000 8,522,000 6,710,000
+Invested Capital
+186,989,000 125,220,000 85,474,000 67,044,000
+Tangible Book Value
+117,767,000 73,406,000 43,257,000 24,891,000
+Total Debt
+116,395,000 84,389,000 63,205,000 39,787,000
+Net Debt
+12,524,000 - - -
+Share Issued
+10,640,000 10,540,000 10,420,000 10,280,000
+Ordinary Shares Number
+10,180,000 10,060,000 9,960,000 9,820,000
+Treasury Shares Number
+460,000 480,000 460,000 460,000"""
+    cashFlowST = """Operating Cash Flow
+39,665,000 46,327,000 66,064,000 38,514,000 30,723,000
+Investing Cash Flow
+-39,360,000 -58,154,000 -59,611,000 -24,281,000 -12,369,000
+Financing Cash Flow
+6,532,000 6,291,000 -1,104,000 -10,066,000 -7,686,000
+End Cash Position
+37,014,000 36,477,000 42,377,000 36,410,000 32,173,000
+Income Tax Paid Supplemental Data
+- 3,688,000 1,713,000 881,000 1,184,000
+Interest Paid Supplemental Data
+- 1,772,000 1,630,000 1,561,000 1,429,000
+Capital Expenditure
+-65,988,000 -61,053,000 -40,140,000 -16,861,000 -13,427,000
+Issuance of Debt
+46,744,000 26,959,000 17,321,000 2,273,000 768,000
+Repayment of Debt
+-34,212,000 -20,668,000 -18,425,000 -12,339,000 -8,454,000
+Free Cash Flow
+-26,323,000 -14,726,000 25,924,000 21,653,000 17,296,000"""
+    AnalysisST = """Earnings Estimate Current Qtr. (Dec 2022) Next Qtr. (Mar 2023) Current Year (2022) Next Year (2023)
+No. of Analysts 35 25 37 44
+Avg. Estimate 0.19 0.29 -0.1 1.64
+Low Estimate -0.03 -0.02 -0.32 0.34
+High Estimate 0.32 0.5 0.03 2.76
+Year Ago EPS 1.39 -0.38 3.24 -0.1
+Revenue Estimate Current Qtr. (Dec 2022) Next Qtr. (Mar 2023) Current Year (2022) Next Year (2023)
+No. of Analysts 36 26 45 45
+Avg. Estimate 145.53B 125.87B 510.24B 562.17B
+Low Estimate 140.01B 121.26B 504.79B 538.12B
+High Estimate 148.25B 133.37B 513.03B 595.73B
+Year Ago Sales 137.41B 116.44B 469.82B 510.24B
+Sales Growth (year/est) 5.90% 8.10% 8.60% 10.20%
+Earnings History 12/30/2021 3/30/2022 6/29/2022 9/29/2022
+EPS Est. 0.18 0.42 0.14 0.21
+EPS Actual 1.39 -0.38 -0.2 0.28
+Difference 1.21 -0.8 -0.34 0.07
+Surprise % 672.20% -190.50% -242.90% 33.30%"""
     # print(stock.getFreeCashFlow())
     # print("Getting Cash flow again")
     # print(stock.getFreeCashFlow())

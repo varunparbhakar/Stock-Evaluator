@@ -75,6 +75,7 @@ class Scraper:
             analysisText = analysisText + el.text + "\n"
 
         return analysisText
+
     def closePopUpAd(self):
         try:
             button = self.driver.find_element(By.XPATH, "//*[@id=\"myLightboxContainer\"]/section/button[1]")
@@ -82,6 +83,7 @@ class Scraper:
             print("BUtton was clicked")
         except NoSuchElementException:
             print("No element was found")
+
     ## Stock Attributes
     def getFreeCashFlow(self):
         freeCashFlowList = self.stringParser(self.CashFlow_Statement, Attribute.FREE_CASH_FLOW_OFFSET)

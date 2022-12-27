@@ -1,5 +1,6 @@
 import json
 
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from Attributes import Attribute
@@ -23,7 +24,7 @@ class Scraper:
         self.options.add_experimental_option("useAutomationExtension", False)
         self.service = ChromeService(executable_path=PATH)
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
-        self.wait_Timer = 3
+        self.wait_Timer = 1
         print("Scraper has been initialized")
         # self.Income_Statement = self.getIncome_Statement()
         # self.BalanceSheet_Statement = self.getBalanceSheet_Statement()
@@ -61,20 +62,26 @@ class Scraper:
         return webElement.text
     def getAnalysis_Statement(self):
 
-        myX_Path = "/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/section"
+        myX_Path = "//*[@id=\"Col1-0-AnalystLeafPage-Proxy\"]/section"
 
         self.driver.get("https://finance.yahoo.com/quote/{}/analysis?p={}".format(self.TICKER, self.TICKER))
-        WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
+
+        # WebDriverWait(self.driver, timeout=self.wait_Timer).until(EC.presence_of_element_located((By.XPATH, myX_Path)))
 
         webElement = self.driver.find_element(By.XPATH, myX_Path)
-        #                                                 NOT PRININTING EVERYTHING IN THE ANALYSIS FIX WITH CLASS NAME
-        analysisSection = webElement.find_elements(By.CLASS_NAME, "W(100%) M(0) BdB Bdc($seperatorColor) Mb(25px)")
+        analysisSection = webElement.find_elements(By.TAG_NAME, "table")
         analysisText = ""
         for el in analysisSection:
             analysisText = analysisText + el.text + "\n"
 
         return analysisText
-
+    def closePopUpAd(self):
+        try:
+            button = self.driver.find_element(By.XPATH, "//*[@id=\"myLightboxContainer\"]/section/button[1]")
+            button.click()
+            print("BUtton was clicked")
+        except NoSuchElementException:
+            print("No element was found")
     ## Stock Attributes
     def getFreeCashFlow(self):
         freeCashFlowList = self.stringParser(self.CashFlow_Statement, Attribute.FREE_CASH_FLOW_OFFSET)

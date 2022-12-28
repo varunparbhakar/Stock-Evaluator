@@ -10,13 +10,16 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from datetime import datetime
+
+import pickle
+import os
+
 
 class Scraper:
-
-    # def __int__(self):
-    #     print("INTIALIZED")
-
     def __init__(self, theStock):
+        print("Scraper has been initialized")
+
         PATH = "C:\Program Files\chromedriver.exe"
         self.TICKER = theStock
         self.options = webdriver.ChromeOptions()
@@ -25,18 +28,23 @@ class Scraper:
         self.service = ChromeService(executable_path=PATH)
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
         self.wait_Timer = 1
-        print("Scraper has been initialized")
-        # self.Income_Statement = self.getIncome_Statement()
-        # self.BalanceSheet_Statement = self.getBalanceSheet_Statement()
-        # self.CashFlow_Statement = self.getCashFlow_Statement()
-        # self.Analysis_Statement = self.getAnalysis_Statement()
 
-        self.Income_Map = self.mapMaker(self.getIncome_Statement())
-        self.BalanceSheet_Map = self.mapMaker(self.getBalanceSheet_Statement())
-        self.CashFlow_Map = self.mapMaker(self.getCashFlow_Statement())
-        self.Analysis_Map = self.mapMaker(self.getAnalysis_Statement())
+        # Getting the TEXT from website
+        self.Income_Statement = self.getIncome_Statement()
+        self.BalanceSheet_Statement = self.getBalanceSheet_Statement()
+        self.CashFlow_Statement = self.getCashFlow_Statement()
+        self.Analysis_Statement = self.getAnalysis_Statement()
 
         self.driver.close()
+
+        self.LastUpdated = datetime.today().year
+        self.Income_Map = self.mapMaker(self.Income_Statement)
+        self.BalanceSheet_Map = self.mapMaker(self.BalanceSheet_Statement)
+        self.CashFlow_Map = self.mapMaker(self.CashFlow_Statement)
+        self.Analysis_Map = self.mapMaker(self.Analysis_Statement)
+
+
+
     def mapMaker(self, stringText):
         tempList = stringText.split("\n")
         currentMap = {}  # String : Array
@@ -384,33 +392,47 @@ class Scraper:
 
         return mylist
 
-    def printMaps(self):
-        print("Printing Income Map")
-        for x in self.Income_Map:
-            print(x)
-        print("-----------")
+    def printStatements(self):
+        string = ""
+        string.join(self.LastUpdated)
+        string.join("-----------")
+        string.join(self.Income_Statement)
+        string.join("-----------")
+        string.join(self.BalanceSheet_Statement)
+        string.join("-----------")
+        string.join(self.CashFlow_Statement)
+        string.join("-----------")
+        string.join(self.Analysis_Statement)
+        string.join("-----------")
 
-        print("Printing Balance Sheet Map")
-        for x in self.BalanceSheet_Map:
-            print(x)
-        print("-----------")
+        print(string)
+        return string
+
+def saveStockData(object):
+    myFile = open(r"C:\Users\varun\PycharmProjects\Stock-Evaluator\venv\StocksDataBase\{}_Data.txt".format(object.TICKER), "w")
+    print("Created a file")
+    print(object.TICKER)
+    myFile.write(object.printStatements())
+    myFile.close()
 
 
-        print("Printing Cash Flow Map")
-        for x in self.CashFlow_Map:
-            print(x)
-        print("-----------")
-
-
-        print("Printing Analysis Map")
-        for x in self.Analysis_Map:
-            print(x)
-
+def loadStockData(ticker):
+    # Make it such that methods have default values, if just a ticker is passed in then create stuff otherwise intialize
+    myFile = open(r"C:\Users\varun\PycharmProjects\Stock-Evaluator\venv\StocksDataBase\{}_Data.txt".format(ticker), "r")
+    print(myFile.read())
 
 def main():
-    # stock = Scraper()
 
-    stock = Scraper("AMZN")
+    ticker = "AMZN"
+
+    if os.path.isfile(r"C:\Users\varun\PycharmProjects\Stock-Evaluator\venv\StocksDataBase\{}_Data.txt".format(ticker)):
+        print("LOADING")
+        loadStockData(ticker)
+    else:
+        print("SAVING")
+        stock = Scraper(ticker)
+        saveStockData(stock)
+
 
     incomeST = """Total Revenue
 502,191,000 469,822,000 386,064,000 280,522,000 232,887,000
@@ -669,6 +691,5 @@ Free Cash Flow
 101,853,000 92,953,000 73,365,000 58,896,000 64,121,000"""
 
     #print(stock.stringParser(incomeStatementString, Attribute.REVENUE_OFFSET))
-
 
 main()
